@@ -1,0 +1,22 @@
+# MapReduce: Simplified Data Processing on Large Clusters
+
+## Abstract
+
+MapReduce is a programming model and an associated implementation for processing and generating large data sets.（指出了MapReduce到底是什么，它是一种编程模型（思想）和一种对这种编程模型的实现（程序包），主要作用是处理和生成大规模数据的）
+
+Users specify a map function that processes a key/value pair to generate a set of intermediate key/value pairs, and a reduce function that merges all intermediate values associated with the same intermediate key. (整个过程的核心是一个map函数一和个reduce函数)
+Many real world tasks are expressible(可以被这个模型表达) in this model, as shown in the paper.
+
+Programs written in this functional style are automatically parallelized and executed on a large cluster of commodity machines. The **run-time system**(这个运行时系统才是整个分布式课程研究的关键，它包括了任务调度、结点通信、容错等，正是有了一个run-time system的抽象，分布式计算才能更好的被一般的programmer使用) takes care of the details of partitioning the input data, scheduling the program’s execution across a set of machines, handling machine failures, and managing the required inter-machine communication. This allows programmers without any experience with parallel and distributed systems to easily utilize the resources of a large distributed system.
+
+Our implementation of MapReduce runs on a large cluster of commodity(商业) machines and is highly scalable: a typical MapReduce computation processes many terabytes of data on thousands of machines. Programmers find the system easy to use: hundreds of MapReduce programs have been implemented and upwards of one thousand MapReduce jobs are executed on Google’s clusters every day.(以实践与落地情况来说明这套理论是完全可行的，TB级的数据，上千台机器，每天都有上百个这样的MapReduce任务被执行)
+
+## 1 Introduction
+
+Over the past five years, the authors and many others at Google have implemented hundreds of special-purpose computations that process large amounts of raw data, such as crawled documents, web request logs, etc（这些是原始数据：爬下来的文档，Web请求日志等）., to compute various kinds of derived data（派生数据）, such as inverted indices, various representations of the graph structure of web documents, summaries of the number of pages crawled per host, the set of most frequent queries in a given day（倒排索引、图结构、爬虫页面摘要、最常查询集合）, etc. Most such computations are conceptually straightforward(概念上非常简单，挑战不是来自于这些计算步骤/算法，而是数据量很大，必须在合理的时间内算完，所以必须使用成百上千台机器做分布式计算，然后还要写复杂的代码逻辑来处理各种错误). However, the input data is usually large and the computations have to be distributed across hundreds or thousands of machines in order to finish in a reasonable amount of time. The issues of how to parallelize the computation, distribute the data, and handle failures conspire to obscure the original simple computation with large amounts of complex code to deal with these issues.(主要是说明设计MapReduce的背景与动机)
+
+As a reaction to this complexity, we designed a new **abstraction** that allows us to express the simple computations we were trying to perform but hides the messy details of parallelization, fault-tolerance, data distribution and load balancing in a library. Our abstraction is inspired by the map and reduce primitives present in Lisp and many other functional languages. We realized that most of our computations involved applying a map operation to each logical “record” in our input in order to compute a set of intermediate key/value pairs, and then applying a reduce operation to all the values that shared the same key, in order to combine the derived data appropriately. Our use of a functional model with userspecified map and reduce operations allows us to parallelize large computations easily and to use re-execution（因为这些Map和Reduce函数都是无状态，无副作用的，所以可以重复执行，得到相同的结果） as the primary mechanism for fault tolerance.
+
+The major contributions of this work are a simple and powerful interface that enables automatic parallelization and distribution of large-scale computations, combined with an implementation of this interface that achieves high performance on large clusters of commodity PCs.
+
+Section 2 describes the basic programming model and gives several examples. Section 3 describes an implementation of the MapReduce interface tailored towards our cluster-based computing environment. Section 4 describes several refinements of the programming model that we have found useful. Section 5 has performance measurements of our implementation for a variety of tasks. Section 6 explores the use of MapReduce within Google including our experiences in using it as the basis for a rewrite of our production indexing system. Section 7 discusses related and future work.
